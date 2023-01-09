@@ -1,0 +1,40 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# vis4cast
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/eco4cast/vis4cast/workflows/R-CMD-check/badge.svg)](https://github.com/eco4cast/vis4cast/actions)
+<!-- badges: end -->
+
+The goal of vis4cast is to ...
+
+## Installation
+
+You can install the development version of vis4cast from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("eco4cast/vis4cast")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(vis4cast)
+## basic example code
+```
