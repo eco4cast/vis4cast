@@ -1,6 +1,38 @@
+#' Plot forecast summary statistics vs observations
+#' 
+#' ggiraph interactive javascript plot of forecasts
+#' 
+#' @param df a scored/summarized dataframe from `score4cast` or `neon4cast::combined_scores`
+#' @param ncol number of columns on facet_wrap
+#' @param width_svg svg width
+#' @param height_svg svg height
+#' @param show.legend show legend?
+#' @return a girafe object
+#' @details these functions are designed for the neon4cast dashboard specifically.
+#' They may or may not generalize well to other use cases, consider modifying or 
+#' coding directly in ggiraph and ggplot. 
+#' @export
+forecast_plots <- function(df,
+                           ncol = NULL, 
+                           show.legend = FALSE, 
+                           width_svg = 8,
+                           height_svg = 4) {
+  
+  if(nrow(df)==0) return(NULL)
+  
+  ggobj <- forecast_ggobj(df, ncol, show.legend)
+  ggiraph::girafe(ggobj = ggobj,
+                  width_svg = width_svg,
+                  height_svg = height_svg,
+                  options = list(
+                    ggiraph::opts_hover_inv(css = "opacity:0.20;"),
+                    ggiraph::opts_hover(css = "stroke-width:2;"),
+                    ggiraph::opts_zoom(max = 4)
+                  ))
+  
+}
 
-
-forecast_ggobj <- function(df, ncol = NULL, show.legend = TRUE) {
+forecast_ggobj <- function(df, ncol = NULL, show.legend = FALSE) {
   
   df |> dplyr::collect() |>
     ggplot2::ggplot() +
@@ -15,26 +47,49 @@ forecast_ggobj <- function(df, ncol = NULL, show.legend = TRUE) {
     ggplot2::theme_bw()
 }
 
-
-forecast_plots <- function(df,
-                           ncol = NULL, 
-                           show.legend = FALSE, 
-                           width_svg = 8,
-                           height_svg = 4) {
+#' Three plots of summary scores: vs model_id overall, vs reference_datetime, and vs horizon
+#' @param var variable name to filter by (or just pre-filter to one variable yourself)
+#' @param horizon_cutoff trims forecasts to specified horizon (assumes unit of days)
+#'   (Note some teams submit much beyond the horizon requested in the design)
+#' @inheritParams forecast_plots
+#' @return girafe object
+#' @export
+leaderboard_plots <- function(df,
+                              var = NULL,
+                              horizon_cutoff = 35,
+                              width_svg = 8,
+                              height_svg = 6
+) {
   
+  if(!is.null(var))
+    df <- df |> dplyr::filter(variable == var)
   if(nrow(df)==0) return(NULL)
   
-  ggobj <- forecast_ggobj(df, ncol, show.legend)
-  ggiraph::girafe(ggobj = ggobj,
-         width_svg = width_svg,
-         height_svg = height_svg,
-         options = list(
-           ggiraph::opts_hover_inv(css = "opacity:0.20;"),
-           ggiraph::opts_hover(css = "stroke-width:2;"),
-           ggiraph::opts_zoom(max = 4)
-         ))
+  df <- horizon_filter(df, horizon_cutoff, "days")
+  board1 <- by_model_id(df, show.legend = FALSE)
+  board2 <- by_reference_datetime(df, show.legend = FALSE) + ggplot2::theme_bw()
+  board3 <- by_horizon(df, show.legend = FALSE) + ggplot2::theme_bw()
+  
+  requireNamespace("patchwork", quietly = TRUE)
+  patchwork::get_dim(board1) # dummy
+  ggob <- board1 / board2 / board3 # patchwork stack
+  
+  ggiraph::girafe(
+    ggobj = ggob,
+    width_svg = width_svg,
+    height_svg = height_svg,
+    options = list(
+      ggiraph::opts_hover_inv(css = "opacity:0.20;"),
+      ggiraph::opts_hover(css = "stroke-width:2;"),
+      ggiraph::opts_zoom(max = 4)
+    )
+  )
   
 }
+
+
+
+
 
 
 
@@ -122,39 +177,6 @@ horizon_filter <- function(df, horizon_cutoff=35, horizon_units="days") {
     dplyr::filter(horizon <= horizon_cutoff, horizon > 0)
 }
 
-leaderboard_plots <- function(df,
-                              var,
-                              horizon_cutoff = 35,
-                              horizon_units = "days",
-                              show.legend=TRUE,
-                              width_svg = 8,
-                              height_svg = 6
-                              ) {
-  
-  df <- df |> dplyr::filter(variable == var)
-  if(nrow(df)==0) return(NULL)
-  
-  df <- horizon_filter(df, horizon_cutoff, horizon_units)
-  board1 <- by_model_id(df, show.legend = FALSE)
-  board2 <- by_reference_datetime(df, show.legend = FALSE) + ggplot2::theme_bw()
-  board3 <- by_horizon(df, show.legend = FALSE) + ggplot2::theme_bw()
-  
-  requireNamespace("patchwork", quietly = TRUE)
-  patchwork::get_dim(board1) # dummy
-  ggob <- board1 / board2 / board3 # patchwork stack
-  
-  ggiraph::girafe(
-    ggobj = ggob,
-    width_svg = width_svg,
-    height_svg = height_svg,
-    options = list(
-      ggiraph::opts_hover_inv(css = "opacity:0.20;"),
-      ggiraph::opts_hover(css = "stroke-width:2;"),
-      ggiraph::opts_zoom(max = 4)
-    )
-  )
-  
-}
 
 globalVariables(c("datetime", "observation", "model_id", "quantile02.5",
                   "quantile97.5", "crps", "logs", "horizon", "variable", 
