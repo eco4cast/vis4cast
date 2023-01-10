@@ -2,3 +2,4 @@
 
 export(forecast_plots)
 export(leaderboard_plots)
+export(sync_scores)

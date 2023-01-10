@@ -28,4 +28,6 @@ Imports:
     tidyr,
     ggplot2,
     ggiraph,
-    forcats
+    forcats,
+    minio
+Remotes: github::cboettig/minio
