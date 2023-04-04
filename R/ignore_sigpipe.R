@@ -4,6 +4,7 @@
 #' Avoid SIGPIPE error in scripts using Arrow S3
 #' @export
 ignore_sigpipe <- function() {
+  requireNamespace("decor", quietly = TRUE)
   requireNamespace("brio", quietly = TRUE)
   requireNamespace("cpp11", quietly = TRUE)
   
@@ -17,7 +18,9 @@ ignore_sigpipe <- function() {
   ignore_sigpipes()
 }
 
-
+dummy_decor <- function(pkg=".") {
+  decor::cpp_decorations(pkg)
+}
 
 # Well this is mighty stupid
 dummy_brio <- function() {

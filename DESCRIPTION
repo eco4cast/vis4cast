@@ -18,9 +18,7 @@ RoxygenNote: 7.2.3
 Suggests: 
     arrow,
     spelling,
-    testthat (>= 3.0.0),
-    cpp11,
-    brio
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Language: en-US
 Imports: 
@@ -31,5 +29,8 @@ Imports:
     ggplot2,
     ggiraph,
     forcats,
-    minio
+    minio,
+    decor,
+    brio,
+    cpp11
 Remotes: github::cboettig/minio
