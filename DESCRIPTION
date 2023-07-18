@@ -32,5 +32,5 @@ Imports:
     minio,
     decor,
     brio,
-    cpp11
-Remotes: github::cboettig/minio
+    cpp11,
+    minioclient
