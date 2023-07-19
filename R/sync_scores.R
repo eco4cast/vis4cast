@@ -4,11 +4,11 @@
 #' @export
 sync_scores <- function(dest = "cache/") {
   
-  minio::install_mc()
-  minio::mc_alias_set("efi",  endpoint="data.ecoforecast.org",
+  minioclient::install_mc()
+  minioclient::mc_alias_set("efi",  endpoint="data.ecoforecast.org",
                access_key = "", secret_key = "")
   cmd <- paste("mirror --overwrite efi/neon4cast-scores", dest)
-  minio::mc(cmd)
+  minioclient::mc(cmd)
 
 }
 
