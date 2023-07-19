@@ -29,7 +29,6 @@ Imports:
     ggplot2,
     ggiraph,
     forcats,
-    minio,
     decor,
     brio,
     cpp11,
